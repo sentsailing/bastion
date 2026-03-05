@@ -1,0 +1,6 @@
+/target/
+puzzle_hashes.json
+integrity.manifest
+*.secret
+*.key
+*.env

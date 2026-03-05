@@ -1,0 +1,21 @@
+[package]
+name = "bastion-timelock"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "bastion-timelock"
+path = "src/main.rs"
+
+[dependencies]
+bastion-common = { path = "../bastion-common" }
+clap = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+ed25519-dalek = { workspace = true }
+rand = { workspace = true }
+rug = { workspace = true }
+indicatif = { workspace = true }
+log = { workspace = true }
+env_logger = { workspace = true }
+getrandom = "0.2"

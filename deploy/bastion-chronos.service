@@ -1,0 +1,21 @@
+[Unit]
+Description=Bastion Chronos Time Oracle
+After=network.target
+RefuseManualStop=yes
+
+[Service]
+Type=simple
+ExecStart=/usr/lib/bastion/bastion-chronos daemon
+Restart=always
+RestartSec=5
+
+ProtectSystem=strict
+ReadWritePaths=/var/lib/bastion
+ProtectHome=yes
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+
+[Install]
+WantedBy=multi-user.target

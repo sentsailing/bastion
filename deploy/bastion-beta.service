@@ -1,0 +1,25 @@
+[Unit]
+Description=Bastion Watchdog Beta
+After=network.target
+Wants=bastion-alpha.service bastion-gamma.service
+RefuseManualStop=yes
+
+[Service]
+Type=simple
+ExecStart=/usr/lib/bastion/bastion-cerberus beta
+Restart=always
+RestartSec=1
+WatchdogSec=10
+
+ProtectSystem=strict
+ReadWritePaths=/var/lib/bastion
+ProtectHome=yes
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+AmbientCapabilities=CAP_NET_ADMIN
+CapabilityBoundingSet=CAP_NET_ADMIN
+
+[Install]
+WantedBy=multi-user.target

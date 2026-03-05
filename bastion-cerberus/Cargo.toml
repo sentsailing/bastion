@@ -1,0 +1,23 @@
+[package]
+name = "bastion-cerberus"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "bastion-cerberus"
+path = "src/main.rs"
+
+[dependencies]
+bastion-common = { path = "../bastion-common" }
+clap = { workspace = true }
+serde_json = { workspace = true }
+serde = { workspace = true }
+bincode = { workspace = true }
+anyhow = { workspace = true }
+hmac = { workspace = true }
+sha2 = { workspace = true }
+rand = { workspace = true }
+nix = { workspace = true }
+log = { workspace = true }
+env_logger = { workspace = true }
+getrandom = "0.2"

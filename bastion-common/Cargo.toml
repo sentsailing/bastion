@@ -1,0 +1,16 @@
+[package]
+name = "bastion-common"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+bincode = { workspace = true }
+ed25519-dalek = { workspace = true }
+rand = { workspace = true }
+hmac = { workspace = true }
+sha2 = { workspace = true }
+anyhow = { workspace = true }
+rug = { workspace = true }
+getrandom = "0.2"

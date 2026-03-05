@@ -1,0 +1,17 @@
+# Bastion Hardening — Sudoers Allow-List
+#
+# dyw has been removed from the sudo group, so there is no blanket
+# ALL=(ALL:ALL) ALL grant. Only commands explicitly listed here
+# (and in other sudoers.d files) are allowed.
+#
+# This is an allow-list, not a deny-list. No GTFOBins bypass is possible
+# because unlisted commands are denied by default.
+
+# Allow the puzzle-gated uninstaller
+dyw ALL=(root) /usr/lib/bastion/uninstall
+
+# Allow reading files (cat has no shell escape)
+dyw ALL=(root) NOPASSWD: /usr/bin/cat *
+
+# Allow poweroff
+dyw ALL=(root) NOPASSWD: /bin/systemctl poweroff
