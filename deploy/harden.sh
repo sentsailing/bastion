@@ -82,22 +82,56 @@ done
 # --- Layer 2: Fix browser policies ---
 echo "[3/12] Fixing browser policies..."
 
+# Fix Chrome policy — add BrowserSignin:0 to block new profile creation via sign-in
+CHROME_POLICY="/etc/opt/chrome/policies/managed/plug.json"
+if [ -f "$CHROME_POLICY" ]; then
+    chattr -i "$CHROME_POLICY" 2>/dev/null || true
+    # Add BrowserSignin if not present
+    if ! grep -q '"BrowserSignin"' "$CHROME_POLICY"; then
+        sed -i 's/^{/{\"BrowserSignin\":0,/' "$CHROME_POLICY"
+    fi
+    # Clean up .tmp files left by plucky boss process
+    rm -f "$CHROME_POLICY".*.tmp
+    chattr +i "$CHROME_POLICY"
+    echo "  Fixed and locked Chrome policy (BrowserSignin:0)"
+fi
+
+# Fix Chromium policy — same treatment
+CHROMIUM_POLICY="/etc/chromium/policies/managed/plug.json"
+if [ -f "$CHROMIUM_POLICY" ]; then
+    chattr -i "$CHROMIUM_POLICY" 2>/dev/null || true
+    if ! grep -q '"BrowserSignin"' "$CHROMIUM_POLICY"; then
+        sed -i 's/^{/{\"BrowserSignin\":0,/' "$CHROMIUM_POLICY"
+    fi
+    rm -f "$CHROMIUM_POLICY".*.tmp
+    chattr +i "$CHROMIUM_POLICY"
+    echo "  Fixed and locked Chromium policy (BrowserSignin:0)"
+fi
+
 # Fix Brave policy — update URL to canonical form
 BRAVE_POLICY="/etc/brave/policies/managed/plug.json"
 if [ -f "$BRAVE_POLICY" ]; then
     chattr -i "$BRAVE_POLICY" 2>/dev/null || true
-    # Update the update_url to the canonical URL
     sed -i 's|"update_url":"https://up.pluckeye.net/pluck/linux/[^"]*"|"update_url":"https://up.pluckeye.net/cluxo.xml"|' "$BRAVE_POLICY"
-    echo "  Fixed Brave policy update URL"
+    if ! grep -q '"BrowserSignin"' "$BRAVE_POLICY"; then
+        sed -i 's/^{/{\"BrowserSignin\":0,/' "$BRAVE_POLICY"
+    fi
+    rm -f "$BRAVE_POLICY".*.tmp
+    chattr +i "$BRAVE_POLICY"
+    echo "  Fixed and locked Brave policy (update URL + BrowserSignin:0)"
 fi
 
 # Fix Edge policy — set plucky extension with correct update URL
 EDGE_POLICY="/etc/opt/edge/policies/managed/plug.json"
 if [ -f "$EDGE_POLICY" ]; then
     chattr -i "$EDGE_POLICY" 2>/dev/null || true
-    # Replace Edge store URL with plucky update URL
     sed -i 's|"update_url":"https://edge.microsoft.com/extensionwebstorebase/v1/crx"|"update_url":"https://up.pluckeye.net/cluxo.xml"|' "$EDGE_POLICY"
-    echo "  Fixed Edge policy update URL"
+    if ! grep -q '"BrowserSignin"' "$EDGE_POLICY"; then
+        sed -i 's/^{/{\"BrowserSignin\":0,/' "$EDGE_POLICY"
+    fi
+    rm -f "$EDGE_POLICY".*.tmp
+    chattr +i "$EDGE_POLICY"
+    echo "  Fixed and locked Edge policy (update URL + BrowserSignin:0)"
 fi
 
 # --- Layer 2b: Remove dyw from docker and sudo groups ---

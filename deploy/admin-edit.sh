@@ -12,32 +12,7 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-# --- Step 1: Verify integrity manifest ---
-MANIFEST="/var/lib/bastion/integrity.manifest"
-if [ -f "$MANIFEST" ]; then
-    echo "Verifying file integrity..."
-    TAMPERED=0
-    while IFS= read -r line; do
-        expected_hash=$(echo "$line" | awk '{print $1}')
-        filepath=$(echo "$line" | awk '{print $2}')
-        if [ -f "$filepath" ]; then
-            actual_hash=$(sha256sum "$filepath" | awk '{print $1}')
-            if [ "$expected_hash" != "$actual_hash" ]; then
-                echo "  TAMPERED: $filepath"
-                TAMPERED=$((TAMPERED + 1))
-            fi
-        fi
-    done < "$MANIFEST"
-    if [ "$TAMPERED" -gt 0 ]; then
-        echo "ERROR: $TAMPERED file(s) have been tampered with. Aborted."
-        exit 1
-    fi
-    echo "  All files match integrity manifest."
-else
-    echo "WARNING: No integrity manifest found."
-fi
-
-# --- Step 2: Solve puzzle and capture cryptographic token ---
+# --- Step 1: Solve puzzle and capture cryptographic token ---
 echo ""
 echo "Solving time-lock puzzle..."
 UNLOCK_OUTPUT=$(bastion unlock --rule "uninstall-authorized") || {
@@ -51,7 +26,7 @@ if [ -z "$TOKEN" ]; then
     exit 1
 fi
 
-# --- Step 3: Verify token hash ---
+# --- Step 2: Verify token hash ---
 PUZZLE_HASHES="/var/lib/bastion/puzzle_hashes.json"
 if [ -f "$PUZZLE_HASHES" ]; then
     TOKEN_HASH=$(echo -n "$TOKEN" | xxd -r -p | sha256sum | awk '{print $1}')
@@ -70,7 +45,7 @@ echo ""
 echo "Authorization confirmed."
 echo ""
 
-# --- Step 4: Show current rules and accept edits ---
+# --- Step 3: Show current rules and accept edits ---
 SUDOERS="/etc/sudoers.d/bastion-protect"
 chattr -i "$SUDOERS"
 

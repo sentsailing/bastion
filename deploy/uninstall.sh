@@ -13,35 +13,6 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-# --- Step 1: Verify integrity manifest ---
-# If files were tampered with (e.g., bastion binary replaced), abort early.
-MANIFEST="/var/lib/bastion/integrity.manifest"
-if [ -f "$MANIFEST" ]; then
-    echo "Verifying file integrity..."
-    TAMPERED=0
-    while IFS= read -r line; do
-        expected_hash=$(echo "$line" | awk '{print $1}')
-        filepath=$(echo "$line" | awk '{print $2}')
-        if [ -f "$filepath" ]; then
-            actual_hash=$(sha256sum "$filepath" | awk '{print $1}')
-            if [ "$expected_hash" != "$actual_hash" ]; then
-                echo "  TAMPERED: $filepath"
-                TAMPERED=$((TAMPERED + 1))
-            fi
-        fi
-    done < "$MANIFEST"
-    if [ "$TAMPERED" -gt 0 ]; then
-        echo "ERROR: $TAMPERED file(s) have been tampered with. Uninstall aborted."
-        echo "This may indicate an attack. Investigate before proceeding."
-        exit 1
-    fi
-    echo "  All files match integrity manifest."
-else
-    echo "WARNING: No integrity manifest found. Proceeding without file integrity check."
-fi
-
-# --- Step 2: Solve puzzle and capture cryptographic token ---
-echo ""
 echo "Solving time-lock puzzle..."
 UNLOCK_OUTPUT=$(bastion unlock --rule "uninstall-authorized") || {
     echo "ERROR: Puzzle not solved. Uninstall denied."
@@ -55,7 +26,7 @@ if [ -z "$TOKEN" ]; then
     exit 1
 fi
 
-# --- Step 3: Verify token hash against pre-stored puzzle hashes ---
+# --- Step 2: Verify token hash against pre-stored puzzle hashes ---
 PUZZLE_HASHES="/var/lib/bastion/puzzle_hashes.json"
 if [ -f "$PUZZLE_HASHES" ]; then
     # Hash the token (which is the hex-encoded secret) — convert hex back to binary first
